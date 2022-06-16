@@ -32,17 +32,18 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
-        try {
-            Message getAuthToken = gson.fromJson(reader.readUTF() , Message.class);
-            authToken = Integer.parseInt(getAuthToken.getMessage());
-            System.out.println("Auth token : " + authToken);
 
             new Thread(
                     () ->{
                         while (true) {
                             try {
-                                Message get = gson.fromJson(reader.readUTF(), Message.class);
-                                System.out.println(get.getMessage());
+                                Message message = gson.fromJson(reader.readUTF(), Message.class);
+                                if (message.getMessageType() == MessageType.GET_AUTH_TOKEN){
+                                    authToken = Integer.parseInt(message.getMessage());
+                                    System.out.println("Auth token : " + authToken);
+                                }
+                                else
+                                    System.out.println(message.getMessage());
 
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -78,9 +79,5 @@ public class Client implements Runnable {
                     }
             ).start();*/
 
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
