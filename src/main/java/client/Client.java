@@ -67,7 +67,7 @@ public class Client implements Runnable {
                     }
             ).start();
 
-            new Thread( //ping todo
+            /*new Thread( //ping todo
                     () -> {
                         try {
                             Thread.sleep(100);
@@ -76,7 +76,7 @@ public class Client implements Runnable {
                             e.printStackTrace();
                         }
                     }
-            ).start();
+            ).start();*/
 
 
         } catch (IOException e) {
