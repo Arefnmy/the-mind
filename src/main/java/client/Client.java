@@ -33,6 +33,19 @@ public class Client implements Runnable {
     @Override
     public void run() {
 
+        Thread ping = new Thread(
+                    () -> {
+                        try {
+                            while (true) { //end game todo
+                                Thread.sleep(100);
+                                writer.writeUTF(gson.toJson(new Message(authToken, MessageType.GET_STATUS, null)));
+                            }
+                        } catch (InterruptedException | IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+            );
+
             new Thread(
                     () ->{
                         while (true) {
@@ -41,6 +54,10 @@ public class Client implements Runnable {
                                 if (message.getMessageType() == MessageType.GET_AUTH_TOKEN){
                                     authToken = Integer.parseInt(message.getMessage());
                                     System.out.println("Auth token : " + authToken);
+                                }
+                                else if(message.getMessageType() == MessageType.GAME_STARTED){
+                                    System.out.println(message.getMessage()); // print todo
+                                    ping.start();
                                 }
                                 else
                                     System.out.println(message.getMessage());
@@ -67,17 +84,6 @@ public class Client implements Runnable {
                         }
                     }
             ).start();
-
-            /*new Thread( //ping todo
-                    () -> {
-                        try {
-                            Thread.sleep(100);
-                            writer.writeUTF(gson.toJson(new Message(authToken , MessageType.GET_STATUS , null)));
-                        } catch (InterruptedException | IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-            ).start();*/
 
     }
 }
