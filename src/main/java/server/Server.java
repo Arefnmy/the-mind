@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Server {
     private final ServerSocket serverSocket;
@@ -24,7 +21,7 @@ public class Server {
         serverSocket = new ServerSocket(port);
         random = new SecureRandom();
         gamaList = new ArrayList<>();
-        clientHandlerList = new ArrayList<>();
+        clientHandlerList = new LinkedList<>();
         lobby = new ArrayList<>();
         gameMap = new HashMap<>();
     }
@@ -33,8 +30,7 @@ public class Server {
         while (!serverSocket.isClosed()){
             Socket socket = serverSocket.accept();
             System.out.println("Client Accepted.");
-            ClientHandler clientHandler = new ClientHandler(socket , random.nextInt() ,
-                    this , lobby.isEmpty()); //generate todo
+            ClientHandler clientHandler = new ClientHandler(socket , random.nextInt() , this , lobby.isEmpty()); //generate todo
             clientHandlerList.add(clientHandler);
 
             new Thread(clientHandler).start();
@@ -45,10 +41,11 @@ public class Server {
         this.capacity = capacity;
     }
 
-    public void startGame(){
-        List<Player> playerList = new ArrayList<>(lobby);
-        int numberOfBot = capacity - playerList.size();
+    public void startGame() {
+        List<Human> humanList = new LinkedList<>(lobby.subList(0 , Math.min(capacity , lobby.size())));
+        int numberOfBot = capacity - humanList.size();
 
+        List<Player> playerList = new LinkedList<>(humanList);
         List<Bot> botList = new ArrayList<>();
         for (int i = 1; i <= numberOfBot ; i++) {
             Bot bot = new Bot("Bot" + i);
@@ -58,17 +55,23 @@ public class Server {
 
         Game game = new Game(botList , playerList);
 
-        gameMap.put(game , lobby);
+        gameMap.put(game , humanList);
         gamaList.add(game);
 
         for (Bot b : botList){
             b.startGame(game);
         }
-        for (ClientHandler c : clientHandlerList){
+
+        List<ClientHandler> clientHandlers = new LinkedList<>(clientHandlerList.subList(0 , humanList.size()));
+        for (ClientHandler c : clientHandlers){
             c.startGame();
         }
-        lobby.clear();
-        clientHandlerList.clear();
+
+        lobby.removeAll(humanList);
+        clientHandlerList.removeAll(clientHandlers);
+
+        if (!clientHandlerList.isEmpty())
+            clientHandlerList.get(0).hostHandler(); //handel before start game todo
     }
 
     public void addToLobby(Human player){

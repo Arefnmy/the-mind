@@ -5,6 +5,7 @@ public enum MessageType {
     GET_NAME,
     GET_NUMBER_OF_PLAYER,
     START_GAME,
+    GAME_STARTED,
 
     GET_STATUS,
     PLAY_CARD
