@@ -18,7 +18,7 @@ public class Bot extends Player implements Runnable {
         int m = cards.getFirst() - game.getGameStatus().getLastPlayedCard();
         if (m > 50) {
             m -= 50;
-            return m * 97;
+            return m * 197;
         }
         return m * 53;
 
@@ -26,28 +26,29 @@ public class Bot extends Player implements Runnable {
 
     public int playCard(){
         int card = cards.removeFirst();
-        game.play(this , card);
-        System.out.println("name " + this.name + " player card " + card);
         return card;
     }
 
+    public void interrupt(){
+       thread.interrupt();
+    }
+
     public void resetSleep(){
-        thread.interrupt();
         thread = new Thread(this);
         thread.start();
     }
 
     public void run(){
         if (!cards.isEmpty()) {
-//            try {
-                //Thread.sleep(getSleepTime());
+            try {
+                Thread.sleep(getSleepTime());
                 int card = playCard();
                 game.play(this , card);
 
-//            }
-//            catch (InterruptedException e) {
-//                //e.printStackTrace();
-//            }
+            }
+            catch (InterruptedException e) {
+                //e.printStackTrace();
+            }
         }
     }
 }

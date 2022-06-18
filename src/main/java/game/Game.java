@@ -47,9 +47,11 @@ public class Game {
     }
 
     public void play(Player player , int card){
+        System.out.println(player.name + " played card " + card);
         gameStatus.addCard(card , false);
+
         for (Bot b : botList){
-            b.resetSleep();
+            b.interrupt();
         }
 
         boolean shouldHeartRemove = false;
@@ -60,7 +62,9 @@ public class Game {
 //                shouldHeartRemove = false;
 
                 while (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
-                    p.getCards().removeFirst();
+                    System.out.println("removed from " + p.getName() + " with card " + card);
+//                    p.getCards().removeFirst();
+                    gameStatus.addCard(p.getCards().removeFirst() , true);
                 }
             }
         }
@@ -68,7 +72,19 @@ public class Game {
             gameStatus.changeHeart(true);
         }
 
+        for (Bot b : botList){
+            b.resetSleep();
+        }
+
         //todo
+    }
+
+    public void playNinja(Player player){
+        gameStatus.changeNinja(true);
+        for (Player p : playerList){
+            if (!p.getCards().isEmpty())
+                gameStatus.addCard(p.getCards().removeFirst() , true);
+        }
     }
 
     public GameStatus getGameStatus(){
