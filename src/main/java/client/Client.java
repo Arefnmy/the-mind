@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class Client implements Runnable {
     private final Gson gson;
 
-    private int authToken;
+    private int authToken; //todo string
     private final Socket socket;
     private final DataInputStream reader;
     private final DataOutputStream writer;
@@ -74,8 +74,10 @@ public class Client implements Runnable {
                         while (true) {
                             try {//todo
                                 /*int authToken = scanner.nextInt();
-                                String messageType = scanner.next();
-                                String message = scanner.next();*/
+                                String messageTypeValue = scanner.next();
+                                MessageType messageType = MessageType.valueOf(messageTypeValue);
+                                String text = scanner.next();
+                                Message message = new Message(authToken , messageType , text);*/
                                 writer.writeUTF(gson.toJson(new Message(authToken, MessageType.PLAY_CARD, scanner.nextLine())));
 
                             } catch (IOException e) {

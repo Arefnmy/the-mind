@@ -14,8 +14,14 @@ public class Bot extends Player implements Runnable {
         thread.start();
     }
 
-    public long getSleepTime(){
-        return 0;
+    public int getSleepTime(){
+        int m = cards.getFirst() - game.getGameStatus().getLastPlayedCard();
+        if (m > 50) {
+            m -= 50;
+            return m * 97;
+        }
+        return m * 53;
+
     }
 
     public int playCard(){
@@ -36,6 +42,7 @@ public class Bot extends Player implements Runnable {
             try {
                 Thread.sleep(getSleepTime());
                 int card = playCard();
+                game.play(this , card);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

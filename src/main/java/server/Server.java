@@ -58,6 +58,7 @@ public class Server {
         gameMap.put(game , humanList);
         gamaList.add(game);
 
+        game.nextLevel();
         for (Bot b : botList){
             b.startGame(game);
         }
@@ -76,5 +77,15 @@ public class Server {
 
     public void addToLobby(Human player){
         lobby.add(player);
+    }
+
+    public void playCard(int token , int card){
+        for (Game g : gamaList){
+            for (Human h : gameMap.get(g)){
+                if (h.getToken() == token){
+                    g.play(h , card);
+                }
+            }
+        }
     }
 }

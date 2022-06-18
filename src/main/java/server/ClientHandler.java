@@ -2,9 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import game.Game;
 import game.Human;
-import game.Player;
 import message.Message;
 import message.MessageType;
 
@@ -57,7 +55,9 @@ public class ClientHandler implements Runnable {
                                     if (message.getMessageType() == MessageType.GET_STATUS) {
 
                                     }
-                                    //todo
+                                    if (message.getMessageType() == MessageType.PLAY_CARD){
+                                        server.playCard(authToken , Integer.parseInt(message.getMessage()));
+                                    }
                                 }
                                 else
                                     writer.writeUTF(gson.toJson(new Message(MessageType.GET_AUTH_TOKEN , "Wrong Auth Token!")));
