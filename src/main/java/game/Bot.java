@@ -25,9 +25,9 @@ public class Bot extends Player implements Runnable {
     }
 
     public int playCard(){
-        int card = cards.getFirst();
-        cards.remove(card);
+        int card = cards.removeFirst();
         game.play(this , card);
+        System.out.println("name " + this.name + " player card " + card);
         return card;
     }
 
@@ -39,14 +39,15 @@ public class Bot extends Player implements Runnable {
 
     public void run(){
         if (!cards.isEmpty()) {
-            try {
-                Thread.sleep(getSleepTime());
+//            try {
+                //Thread.sleep(getSleepTime());
                 int card = playCard();
                 game.play(this , card);
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            }
+//            catch (InterruptedException e) {
+//                //e.printStackTrace();
+//            }
         }
     }
 }

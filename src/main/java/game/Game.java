@@ -13,16 +13,17 @@ public class Game {
     private final List<Integer> cards;
     private final GameStatus gameStatus;
 
-    public Game(List<Bot> botList, List<Player> humanList) {
+    public Game(List<Bot> botList, List<Player> playerList) {
         this.botList = botList;
-        playerList = new ArrayList<>(botList);
-        playerList.addAll(humanList);
+        this.playerList = playerList;
 
         gameStatus = new GameStatus(playerList.size());
         cards = new LinkedList<>();
         for (int i = 1; i <= 100 ; i++) {
             cards.add(i);
         }
+
+        System.out.println(playerList.size());
     }
 
     public void nextLevel(){
@@ -38,6 +39,7 @@ public class Game {
             List<Integer> cardList = new LinkedList<>();
             for (int i = 0; i < level; i++) {
                 cardList.add(cards.get(j));
+
                 j++;
             }
             p.newDeck(cardList);
@@ -56,7 +58,8 @@ public class Game {
                 shouldHeartRemove = true;
 //                gameStatus.changeHeart(true);
 //                shouldHeartRemove = false;
-                while (p.getCards().getFirst() < card){
+
+                while (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
                     p.getCards().removeFirst();
                 }
             }
@@ -66,7 +69,6 @@ public class Game {
         }
 
         //todo
-        System.out.println(card);
     }
 
     public GameStatus getGameStatus(){
