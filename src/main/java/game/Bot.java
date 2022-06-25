@@ -18,15 +18,9 @@ public class Bot extends Player implements Runnable {
         int m = cards.getFirst() - game.getGameStatus().getLastPlayedCard();
         if (m > 50) {
             m -= 50;
-            return m * 197;
+            return m * 730;
         }
-        return m * 53;
-
-    }
-
-    public int playCard(){
-        int card = cards.removeFirst();
-        return card;
+        return m *  570;
     }
 
     public void interrupt(){
@@ -44,7 +38,6 @@ public class Bot extends Player implements Runnable {
                 Thread.sleep(getSleepTime());
                 int card = playCard();
                 game.play(this , card);
-
             }
             catch (InterruptedException e) {
                 //e.printStackTrace();

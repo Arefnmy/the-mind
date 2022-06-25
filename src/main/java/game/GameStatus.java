@@ -1,5 +1,8 @@
 package game;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.LinkedList;
 
 public class GameStatus {
@@ -51,6 +54,7 @@ public class GameStatus {
     }
 
     public void nextLevel(){
+        playedCards.clear();
         level ++;
         if (level % 3 == 0 && level != 12) ninjaNumber ++;
 
@@ -74,5 +78,15 @@ public class GameStatus {
     public int getLastPlayedCard(){
         if (playedCards.isEmpty()) return 0;
         else return playedCards.getLast();
+    }
+
+    public boolean statusChanged(GameStatus gameStatus){
+        return true; //todo
+    }
+
+    public GameStatus getCopy(){
+        Gson gson = new GsonBuilder().create();
+        String json = gson.toJson(this);
+        return gson.fromJson(json , GameStatus.class);
     }
 }

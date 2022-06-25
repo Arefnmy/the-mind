@@ -1,7 +1,9 @@
 package server;
 
 import game.*;
+import message.Message;
 
+import javax.xml.transform.sax.SAXSource;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -65,7 +67,7 @@ public class Server {
 
         List<ClientHandler> clientHandlers = new LinkedList<>(clientHandlerList.subList(0 , humanList.size()));
         for (ClientHandler c : clientHandlers){
-            c.startGame();
+            c.startGame(game);
         }
 
         lobby.removeAll(humanList);
@@ -79,13 +81,23 @@ public class Server {
         lobby.add(player);
     }
 
-    public void playCard(int token , int card){
+    public void playCard(int token){//todo
         for (Game g : gamaList){
             for (Human h : gameMap.get(g)){
                 if (h.getToken() == token){
-                    g.play(h , card);
+                    int playCard = h.playCard();
+                    g.play(h , playCard);
                 }
             }
+        }
+    }
+
+    public void playCardNinja(int token){
+        System.out.println("Play ninja");
+        for (Game g : gamaList){
+            for (Human h : gameMap.get(g))
+                if (h.getToken() == token)
+                    g.playNinja(h);
         }
     }
 }

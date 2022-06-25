@@ -58,18 +58,27 @@ public class Game {
         for (Player p : playerList){
             if (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
                 shouldHeartRemove = true;
-//                gameStatus.changeHeart(true);
-//                shouldHeartRemove = false;
-
                 while (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
                     System.out.println("removed from " + p.getName() + " with card " + card);
-//                    p.getCards().removeFirst();
                     gameStatus.addCard(p.getCards().removeFirst() , true);
                 }
             }
         }
         if (shouldHeartRemove){
             gameStatus.changeHeart(true);
+        }
+
+        boolean allEmpty = true;
+        for(Player p: playerList){
+            if(!p.getCards().isEmpty()) {
+                allEmpty = false;
+                break;
+            }
+        }
+        if(allEmpty) {
+            nextLevel();
+            System.out.println(" level " + gameStatus.getLevel());
+
         }
 
         for (Bot b : botList){
@@ -79,11 +88,32 @@ public class Game {
         //todo
     }
 
-    public void playNinja(Player player){
+    public void playNinja(Player player) {
+        for (Bot b : botList){
+            b.interrupt();
+        }
+
         gameStatus.changeNinja(true);
-        for (Player p : playerList){
+        for (Player p : playerList) {
             if (!p.getCards().isEmpty())
                 gameStatus.addCard(p.getCards().removeFirst() , true);
+        }
+
+        boolean allEmpty = true;//function todo
+        for(Player p: playerList){
+            if(!p.getCards().isEmpty()) {
+                allEmpty = false;
+                break;
+            }
+        }
+        if(allEmpty) {
+            nextLevel();
+            System.out.println(" level " + gameStatus.getLevel());
+
+        }
+
+        for (Bot b : botList){
+            b.resetSleep();
         }
     }
 

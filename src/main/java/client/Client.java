@@ -72,13 +72,14 @@ public class Client implements Runnable {
             new Thread(
                     () ->{
                         while (true) {
-                            try {//todo
-                                /*int authToken = scanner.nextInt();
+                            try {
+                                //int authToken = scanner.nextInt();
                                 String messageTypeValue = scanner.next();
                                 MessageType messageType = MessageType.valueOf(messageTypeValue);
                                 String text = scanner.next();
-                                Message message = new Message(authToken , messageType , text);*/
-                                writer.writeUTF(gson.toJson(new Message(authToken, MessageType.PLAY_CARD, scanner.nextLine())));
+                                Message message = new Message(authToken , messageType , text);
+                                //writer.writeUTF(gson.toJson(new Message(authToken, MessageType.PLAY_CARD, scanner.nextLine())));
+                                writer.writeUTF(gson.toJson(message));
 
                             } catch (IOException e) {
                                 e.printStackTrace();

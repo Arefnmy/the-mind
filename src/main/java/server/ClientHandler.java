@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import game.Game;
+import game.GameStatus;
 import game.Human;
 import message.Message;
 import message.MessageType;
@@ -10,6 +12,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientHandler implements Runnable {
     private final Gson gson;
@@ -19,10 +23,15 @@ public class ClientHandler implements Runnable {
     private final DataOutputStream writer;
     private final int authToken;
     private final Server server;
+    private Game game;
     private boolean isHost;
+    private GameStatus lastGameStatus;
+    private final List<Message> history;
 
     public ClientHandler(Socket socket , int authToken , Server server , boolean isHost) throws IOException {
         gson = new GsonBuilder().create();
+
+        history = new ArrayList<>();
 
         this.socket = socket;
         this.authToken = authToken;
@@ -53,10 +62,19 @@ public class ClientHandler implements Runnable {
                                 if(message.getAuthToken() == authToken) {
 
                                     if (message.getMessageType() == MessageType.GET_STATUS) {
+                                        if (game.getGameStatus().statusChanged(lastGameStatus)){
+                                            lastGameStatus = game.getGameStatus().getCopy();
 
+                                        }
                                     }
                                     if (message.getMessageType() == MessageType.PLAY_CARD){
-                                        server.playCard(authToken , Integer.parseInt(message.getMessage()));
+                                        String cardStr = message.getMessage();
+                                        if (cardStr.equals("NINJA"))
+                                            server.playCardNinja(authToken);
+                                        else if (cardStr.equals("CARD"))
+                                            server.playCard(authToken);
+                                        /*else
+                                            server.playCard(authToken , Integer.parseInt(message.getMessage()));*/
                                     }
                                 }
                                 else
@@ -74,10 +92,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void startGame() {
+    public void startGame(Game game) {
         try {
             writer.writeUTF(gson.toJson(new Message(MessageType.GAME_STARTED , "Game Started.")));
-            //todo
+            this.game = game;
         } catch (IOException e) {
             e.printStackTrace();
         }
