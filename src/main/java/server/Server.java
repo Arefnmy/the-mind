@@ -81,7 +81,7 @@ public class Server {
         lobby.add(player);
     }
 
-    public void playCard(int token){//todo
+    public void playCard(int token){
         for (Game g : gamaList){
             for (Human h : gameMap.get(g)){
                 if (h.getToken() == token){
@@ -93,7 +93,6 @@ public class Server {
     }
 
     public void playCardNinja(int token){
-        System.out.println("Play ninja");
         for (Game g : gamaList){
             for (Human h : gameMap.get(g))
                 if (h.getToken() == token)

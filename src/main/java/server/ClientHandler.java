@@ -3,7 +3,6 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import game.Game;
-import game.GameStatus;
 import game.Human;
 import message.Message;
 import message.MessageType;
@@ -12,7 +11,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClientHandler implements Runnable {
@@ -24,14 +22,11 @@ public class ClientHandler implements Runnable {
     private final int authToken;
     private final Server server;
     private Game game;
+    private Human human;
     private boolean isHost;
-    private GameStatus lastGameStatus;
-    private final List<Message> history;
 
     public ClientHandler(Socket socket , int authToken , Server server , boolean isHost) throws IOException {
         gson = new GsonBuilder().create();
-
-        history = new ArrayList<>();
 
         this.socket = socket;
         this.authToken = authToken;
@@ -48,7 +43,7 @@ public class ClientHandler implements Runnable {
             writer.writeUTF(gson.toJson(new Message(MessageType.GET_NAME , "Enter your name : ")));
             Message getName = gson.fromJson(reader.readUTF() , Message.class);
             String name = getName.getMessage();
-            Human human = new Human(authToken , name);
+            human = new Human(authToken , name);
             server.addToLobby(human);
             //waiting
             if (isHost)
@@ -62,16 +57,20 @@ public class ClientHandler implements Runnable {
                                 if(message.getAuthToken() == authToken) {
 
                                     if (message.getMessageType() == MessageType.GET_STATUS) {
-                                        if (game.getGameStatus().statusChanged(lastGameStatus)){
-                                            lastGameStatus = game.getGameStatus().getCopy();
-
+                                        List<String> history = game.getGameStatus().getHistory();
+                                        for (String s : history){
+                                            writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , s)));
+                                        }
+                                        if (!history.isEmpty()){
+                                            writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , "Cards : " + human.getCards())));
+                                            history.clear();
                                         }
                                     }
                                     if (message.getMessageType() == MessageType.PLAY_CARD){
                                         String cardStr = message.getMessage();
                                         if (cardStr.equals("NINJA"))
                                             server.playCardNinja(authToken);
-                                        else if (cardStr.equals("CARD"))
+                                        else if (cardStr.equals("NUMBER"))
                                             server.playCard(authToken);
                                         /*else
                                             server.playCard(authToken , Integer.parseInt(message.getMessage()));*/
@@ -95,6 +94,7 @@ public class ClientHandler implements Runnable {
     public void startGame(Game game) {
         try {
             writer.writeUTF(gson.toJson(new Message(MessageType.GAME_STARTED , "Game Started.")));
+            writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , "Cards : " + human.getCards())));
             this.game = game;
         } catch (IOException e) {
             e.printStackTrace();

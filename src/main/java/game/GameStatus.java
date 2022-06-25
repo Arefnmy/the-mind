@@ -3,15 +3,19 @@ package game;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class GameStatus {
     private int heartNumber;
     private int ninjaNumber;
     private int level;
     private final LinkedList<Integer> playedCards;
+    private final List<String> history;
 
     public GameStatus(int heartNumber) {
+        history = new ArrayList<>();
         playedCards = new LinkedList<>();
         this.heartNumber = heartNumber;
         ninjaNumber = 2;
@@ -80,13 +84,11 @@ public class GameStatus {
         else return playedCards.getLast();
     }
 
-    public boolean statusChanged(GameStatus gameStatus){
-        return true; //todo
+    public void addHistory(String message){
+        history.add(message);
     }
 
-    public GameStatus getCopy(){
-        Gson gson = new GsonBuilder().create();
-        String json = gson.toJson(this);
-        return gson.fromJson(json , GameStatus.class);
+    public List<String> getHistory() {
+        return history;
     }
 }

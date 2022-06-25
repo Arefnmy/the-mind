@@ -1,11 +1,8 @@
 package game;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Game {
     private final List<Bot> botList;
@@ -48,6 +45,7 @@ public class Game {
 
     public void play(Player player , int card){
         System.out.println(player.name + " played card " + card);
+        gameStatus.addHistory(player.name + " played card " + card);
         gameStatus.addCard(card , false);
 
         for (Bot b : botList){
@@ -60,12 +58,15 @@ public class Game {
                 shouldHeartRemove = true;
                 while (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
                     System.out.println("removed from " + p.getName() + " with card " + card);
+                    gameStatus.addHistory("removed from " + p.getName() + " with card " + card);
                     gameStatus.addCard(p.getCards().removeFirst() , true);
                 }
             }
         }
         if (shouldHeartRemove){
             gameStatus.changeHeart(true);
+            System.out.println("loose heart!");
+            gameStatus.addHistory("loose heart! \n heart : " + gameStatus.getHeartNumber());
         }
 
         boolean allEmpty = true;
@@ -78,6 +79,7 @@ public class Game {
         if(allEmpty) {
             nextLevel();
             System.out.println(" level " + gameStatus.getLevel());
+            gameStatus.addHistory(" level : " + gameStatus.getLevel());
 
         }
 
@@ -89,6 +91,7 @@ public class Game {
     }
 
     public void playNinja(Player player) {
+        gameStatus.addHistory(player.name + " played card ninja");
         for (Bot b : botList){
             b.interrupt();
         }
@@ -109,6 +112,7 @@ public class Game {
         if(allEmpty) {
             nextLevel();
             System.out.println(" level " + gameStatus.getLevel());
+            gameStatus.addHistory(" level : " + gameStatus.getLevel());
 
         }
 
