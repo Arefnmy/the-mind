@@ -1,6 +1,7 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,10 +12,10 @@ public class GameStatus {
     private final LinkedList<Integer> playedCards;
     private final List<String> history;
 
-    public GameStatus(int heartNumber) {
-        history = new ArrayList<>();
+    public GameStatus(int playerNumber) {
+        history = Collections.synchronizedList(new ArrayList<>());
         playedCards = new LinkedList<>();
-        this.heartNumber = heartNumber;
+        heartNumber = playerNumber;
         ninjaNumber = 2;
         level = 0;
     }
@@ -40,20 +41,22 @@ public class GameStatus {
 
     public void changeHeart(boolean minus){
         if (minus)
-            heartNumber --;
+            heartNumber--;
         else
             heartNumber ++;
         addHistory(" Hearts : " + heartNumber);
-        //todo
     }
 
-    public void changeNinja(boolean minus){
-        if (minus)
-            ninjaNumber --;
+    public boolean changeNinja(boolean minus){
+        if (minus) {
+            if (ninjaNumber == 0)
+                return false;
+            ninjaNumber--;
+        }
         else
             ninjaNumber ++;
-
         addHistory(" Ninjas : " + ninjaNumber);
+        return true;
     }
 
     public void nextLevel(){
