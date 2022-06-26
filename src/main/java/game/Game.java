@@ -65,7 +65,7 @@ public class Game {
         }
         if (shouldHeartRemove){
             gameStatus.changeHeart(true);
-            System.out.println("loose heart!");
+            //todo
         }
 
         boolean allEmpty = true;
@@ -84,35 +84,36 @@ public class Game {
             b.resetSleep();
         }
 
-        //todo
     }
 
     public void playNinja(Player player) {
-        gameStatus.addHistory(player.name + " played card ninja");
-        for (Bot b : botList){
-            b.interrupt();
-        }
-
-        gameStatus.changeNinja(true);
-        for (Player p : playerList) {
-            if (!p.getCards().isEmpty())
-                gameStatus.addCard(p.getCards().removeFirst() , true);
-        }
-
-        boolean allEmpty = true;//function todo
-        for(Player p: playerList){
-            if(!p.getCards().isEmpty()) {
-                allEmpty = false;
-                break;
+        if (gameStatus.changeNinja(true)) {
+            gameStatus.addHistory(player.name + " played card ninja");
+            for (Bot b : botList) {
+                b.interrupt();
             }
-        }
-        if(allEmpty) {
-            nextLevel();
-            System.out.println(" level " + gameStatus.getLevel());
-        }
 
-        for (Bot b : botList){
-            b.resetSleep();
+            //gameStatus.changeNinja(true);
+            for (Player p : playerList) {
+                if (!p.getCards().isEmpty())
+                    gameStatus.addCard(p.getCards().removeFirst(), true);
+            }
+
+            boolean allEmpty = true;//function todo
+            for (Player p : playerList) {
+                if (!p.getCards().isEmpty()) {
+                    allEmpty = false;
+                    break;
+                }
+            }
+            if (allEmpty) {
+                nextLevel();
+                System.out.println(" level " + gameStatus.getLevel());
+            }
+
+            for (Bot b : botList) {
+                b.resetSleep();
+            }
         }
     }
 
