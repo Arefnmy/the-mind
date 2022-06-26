@@ -10,7 +10,6 @@ import message.MessageType;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.util.List;
 
@@ -61,23 +60,7 @@ public class ClientHandler implements Runnable {
                                 if(message.getAuthToken() == authToken) {
 
                                     if (message.getMessageType() == MessageType.GET_STATUS) {
-                                        List<String> gameHistory = game.getGameStatus().getHistory();
-                                        if (!gameHistory.isEmpty()){
-                                            List<String> history = gameHistory.subList(lastIndexOfHistory + 1 , gameHistory.size());
-                                            lastIndexOfHistory = gameHistory.size() - 1;
-                                            for (String s : history){
-                                                writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , s)));
-                                            }
-                                            if (!history.isEmpty()){
-                                                writer.writeUTF(gson.toJson(
-                                                        new Message(MessageType.GET_STATUS ,
-                                                                "Cards : " + human.getCards())));
-                                                writer.writeUTF(gson.toJson(
-                                                        new Message(MessageType.GET_STATUS ,
-                                                                "Cards on table :" + game.getGameStatus().getPlayedCards())));
-
-                                            }
-                                        }
+                                        getStatusHandler();
                                     }
                                     if (message.getMessageType() == MessageType.PLAY_CARD){
                                         String cardStr = message.getMessage();
@@ -126,6 +109,25 @@ public class ClientHandler implements Runnable {
             server.startGame();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public synchronized void getStatusHandler() throws IOException {
+        List<String> gameHistory = game.getGameStatus().getHistory();
+        if (!gameHistory.isEmpty()){
+            List<String> history = gameHistory.subList(lastIndexOfHistory + 1 , gameHistory.size());
+            lastIndexOfHistory = gameHistory.size() - 1;
+            for (String s : history){
+                writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , s)));
+            }
+            if (!history.isEmpty()){
+                writer.writeUTF(gson.toJson(
+                        new Message(MessageType.GET_STATUS ,
+                                "Cards : " + human.getCards())));
+                writer.writeUTF(gson.toJson(
+                        new Message(MessageType.GET_STATUS ,
+                                "Cards on table :" + game.getGameStatus().getPlayedCards())));
+            }
         }
     }
 }

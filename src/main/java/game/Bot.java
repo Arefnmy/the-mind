@@ -19,10 +19,10 @@ public class Bot extends Player implements Runnable {
         if (m > 50) {
             m -= 50;
             m *= 300;
-            return m + 3000;
+            return m + 3500;
         }
         m *= 400;
-        return m + 1000;
+        return m + 1500;
     }
 
     public void interrupt(){
