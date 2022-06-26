@@ -9,5 +9,6 @@ public enum MessageType {
 
     STATUS,
     HISTORY,
-    PLAY_CARD
+    PLAY_CARD,
+    REACTION
 }
