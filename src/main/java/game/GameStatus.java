@@ -43,7 +43,7 @@ public class GameStatus {
             heartNumber --;
         else
             heartNumber ++;
-
+        addHistory(" Hearts : " + heartNumber);
         //todo
     }
 
@@ -52,14 +52,18 @@ public class GameStatus {
             ninjaNumber --;
         else
             ninjaNumber ++;
+
+        addHistory(" Ninjas : " + ninjaNumber);
     }
 
     public void nextLevel(){
         playedCards.clear();
         level ++;
-        if (level % 3 == 0 && level != 12) ninjaNumber ++;
+        addHistory(" Level : " + level);
 
-        if (level % 3 == 2 && level != 11) heartNumber ++;
+        if (level % 3 == 0 && level != 12) changeNinja(false);
+
+        if (level % 3 == 2 && level != 11) changeHeart(false);
 
 //        switch (level){
 //            case 2 :

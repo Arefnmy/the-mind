@@ -42,8 +42,8 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {//handel in while(true) todo
-            writer.writeUTF(gson.toJson(new Message(MessageType.GET_AUTH_TOKEN , String.valueOf(authToken))));
-            writer.writeUTF(gson.toJson(new Message(MessageType.GET_NAME , "Enter your name : ")));
+            writer.writeUTF(gson.toJson(new Message(MessageType.AUTH_TOKEN, String.valueOf(authToken))));
+            writer.writeUTF(gson.toJson(new Message(MessageType.NAME, "Enter your name : ")));
             Message getName = gson.fromJson(reader.readUTF() , Message.class);
             String name = getName.getMessage();
             human = new Human(authToken , name);
@@ -59,9 +59,9 @@ public class ClientHandler implements Runnable {
                                 Message message = gson.fromJson(reader.readUTF(), Message.class);
                                 if(message.getAuthToken() == authToken) {
 
-                                    if (message.getMessageType() == MessageType.GET_STATUS) {
+                                    if (message.getMessageType() == MessageType.STATUS)
                                         getStatusHandler();
-                                    }
+
                                     if (message.getMessageType() == MessageType.PLAY_CARD){
                                         String cardStr = message.getMessage();
                                         if (cardStr.equals("NINJA"))
@@ -71,7 +71,7 @@ public class ClientHandler implements Runnable {
                                     }
                                 }
                                 else
-                                    writer.writeUTF(gson.toJson(new Message(MessageType.GET_AUTH_TOKEN , "Wrong Auth Token!")));
+                                    writer.writeUTF(gson.toJson(new Message(MessageType.AUTH_TOKEN, "Wrong Auth Token!")));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -88,7 +88,7 @@ public class ClientHandler implements Runnable {
     public void startGame(Game game) {
         try {
             writer.writeUTF(gson.toJson(new Message(MessageType.GAME_STARTED , "Game Started.")));
-            writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , "Cards : " + human.getCards())));
+            writer.writeUTF(gson.toJson(new Message(MessageType.STATUS, "Cards : " + human.getCards())));
             this.game = game;
         } catch (IOException e) {
             e.printStackTrace();
@@ -98,7 +98,7 @@ public class ClientHandler implements Runnable {
     public void hostHandler() {
         isHost = true; //todo
         try {
-            writer.writeUTF(gson.toJson(new Message(MessageType.GET_NUMBER_OF_PLAYER ,
+            writer.writeUTF(gson.toJson(new Message(MessageType.NUMBER_OF_PLAYER,
                     "Enter number of other players : ")));
             Message getNumberOfPlayer = gson.fromJson(reader.readUTF() , Message.class);
             int numberOfPlayer = Integer.parseInt(getNumberOfPlayer.getMessage());
@@ -118,14 +118,14 @@ public class ClientHandler implements Runnable {
             List<String> history = gameHistory.subList(lastIndexOfHistory + 1 , gameHistory.size());
             lastIndexOfHistory = gameHistory.size() - 1;
             for (String s : history){
-                writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , s)));
+                writer.writeUTF(gson.toJson(new Message(MessageType.HISTORY, s)));
             }
             if (!history.isEmpty()){
                 writer.writeUTF(gson.toJson(
-                        new Message(MessageType.GET_STATUS ,
+                        new Message(MessageType.STATUS,
                                 "Cards : " + human.getCards())));
                 writer.writeUTF(gson.toJson(
-                        new Message(MessageType.GET_STATUS ,
+                        new Message(MessageType.STATUS,
                                 "Cards on table :" + game.getGameStatus().getPlayedCards())));
             }
         }

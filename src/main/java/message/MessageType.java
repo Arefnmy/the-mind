@@ -1,12 +1,13 @@
 package message;
 
 public enum MessageType {
-    GET_AUTH_TOKEN,
-    GET_NAME,
-    GET_NUMBER_OF_PLAYER,
+    AUTH_TOKEN,
+    NAME,
+    NUMBER_OF_PLAYER,
     START_GAME,
     GAME_STARTED,
 
-    GET_STATUS,
+    STATUS,
+    HISTORY,
     PLAY_CARD
 }
