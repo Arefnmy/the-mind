@@ -1,9 +1,8 @@
 package server;
 
 import game.*;
-import message.Message;
+import message.MessageType;
 
-import javax.xml.transform.sax.SAXSource;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,10 +13,12 @@ public class Server {
     private final ServerSocket serverSocket;
     private final SecureRandom random;
     private final List<Game> gamaList;
-    private final Map<Game , List<Human>> gameMap;
+    private final Map<Game , List<ClientHandler>> gameMap;
     private final List<Human> lobby;
     private final List<ClientHandler> clientHandlerList;
     private int capacity;
+
+    public final static List<String> emojis = new ArrayList<>(Arrays.asList(":)" , ":(" , ":|" , ":D"));
 
     public Server(int port) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -32,7 +33,8 @@ public class Server {
         while (!serverSocket.isClosed()){
             Socket socket = serverSocket.accept();
             System.out.println("Client Accepted.");
-            ClientHandler clientHandler = new ClientHandler(socket , random.nextInt() , this , lobby.isEmpty()); //generate todo
+            ClientHandler clientHandler = new ClientHandler(socket , Math.abs(random.nextInt()) ,
+                    this , lobby.isEmpty());
             clientHandlerList.add(clientHandler);
 
             new Thread(clientHandler).start();
@@ -45,6 +47,7 @@ public class Server {
 
     public void startGame() {
         List<Human> humanList = new LinkedList<>(lobby.subList(0 , Math.min(capacity , lobby.size())));
+        List<ClientHandler> clientHandlers = new LinkedList<>(clientHandlerList.subList(0 , humanList.size()));
         int numberOfBot = capacity - humanList.size();
 
         List<Player> playerList = new LinkedList<>(humanList);
@@ -57,18 +60,15 @@ public class Server {
 
         Game game = new Game(botList , playerList);
 
-        gameMap.put(game , humanList);
+        gameMap.put(game , clientHandlers);
         gamaList.add(game);
 
         game.nextLevel();
-        for (Bot b : botList){
+        for (Bot b : botList)
             b.startGame(game);
-        }
 
-        List<ClientHandler> clientHandlers = new LinkedList<>(clientHandlerList.subList(0 , humanList.size()));
-        for (ClientHandler c : clientHandlers){
+        for (ClientHandler c : clientHandlers)
             c.startGame(game);
-        }
 
         lobby.removeAll(humanList);
         clientHandlerList.removeAll(clientHandlers);
@@ -83,7 +83,8 @@ public class Server {
 
     public void playCard(int token){
         for (Game g : gamaList){
-            for (Human h : gameMap.get(g)){
+            for (ClientHandler c : gameMap.get(g)){
+                Human h = c.getHuman();
                 if (h.getToken() == token){
                     int playCard = h.playCard();
                     g.play(h , playCard);
@@ -94,9 +95,17 @@ public class Server {
 
     public void playCardNinja(int token){
         for (Game g : gamaList){
-            for (Human h : gameMap.get(g))
+            for (ClientHandler c : gameMap.get(g)) {
+                Human h = c.getHuman();
                 if (h.getToken() == token)
                     g.playNinja(h);
+            }
+        }
+    }
+
+    public void sendToAll(Game game ,MessageType messageType, String message) throws IOException {
+        for (ClientHandler c : gameMap.get(game)){
+            c.sendMessage(messageType , message);
         }
     }
 }
