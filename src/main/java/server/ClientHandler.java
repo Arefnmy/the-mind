@@ -41,9 +41,9 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        try {//handel in while(true) todo
-            writer.writeUTF(gson.toJson(new Message(MessageType.AUTH_TOKEN, String.valueOf(authToken))));
-            writer.writeUTF(gson.toJson(new Message(MessageType.NAME, "Enter your name : ")));
+        try {
+            sendMessage(MessageType.AUTH_TOKEN , String.valueOf(authToken));
+            sendMessage(MessageType.NAME, "Enter your name : ");
             Message getName = gson.fromJson(reader.readUTF() , Message.class);
             String name = getName.getMessage();
             human = new Human(authToken , name);
@@ -58,20 +58,45 @@ public class ClientHandler implements Runnable {
                             try {
                                 Message message = gson.fromJson(reader.readUTF(), Message.class);
                                 if(message.getAuthToken() == authToken) {
-
-                                    if (message.getMessageType() == MessageType.STATUS)
-                                        getStatusHandler();
-
-                                    if (message.getMessageType() == MessageType.PLAY_CARD){
-                                        String cardStr = message.getMessage();
-                                        if (cardStr.equals("NINJA"))
-                                            server.playCardNinja(authToken);
-                                        else if (cardStr.equals("NUMBER"))
-                                            server.playCard(authToken);
+                                    switch (message.getMessageType()){
+                                        case STATUS:
+                                            //getStatusHandler();
+                                            List<String> gameHistory = game.getGameStatus().getHistory();
+                                            if (!gameHistory.isEmpty()){
+                                                List<String> history = gameHistory.subList(lastIndexOfHistory + 1 , gameHistory.size());
+                                                lastIndexOfHistory = gameHistory.size() - 1;
+                                                for (String s : history){
+                                                    sendMessage(MessageType.HISTORY, s);
+                                                }
+                                                if (!history.isEmpty()){
+                                                    sendMessage(MessageType.STATUS, "Cards : " + human.getCards());
+                                                    sendMessage(MessageType.STATUS,
+                                                            "Cards on table :" + game.getGameStatus().getPlayedCards());
+                                                }
+                                            }
+                                            break;
+                                        case PLAY_CARD:
+                                            String cardStr = message.getMessage();
+                                            if (cardStr.equals("NINJA"))
+                                                server.playCardNinja(authToken);
+                                            else if (cardStr.equals("NUMBER"))
+                                                server.playCard(authToken);
+                                            break;
+                                        case START_GAME:
+                                            server.startGame();
+                                            break;
+                                        case REACTION:
+                                            String reaction = human.getName() + ": ";
+                                            for (String s : Server.emojis){
+                                                if (message.getMessage().contains(s)){
+                                                    reaction += s + " " ;
+                                                }
+                                            }
+                                            server.sendToAll(game , MessageType.REACTION , reaction);
                                     }
                                 }
                                 else
-                                    writer.writeUTF(gson.toJson(new Message(MessageType.AUTH_TOKEN, "Wrong Auth Token!")));
+                                    sendMessage(MessageType.AUTH_TOKEN, "Wrong Auth Token!");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -87,8 +112,8 @@ public class ClientHandler implements Runnable {
 
     public void startGame(Game game) {
         try {
-            writer.writeUTF(gson.toJson(new Message(MessageType.GAME_STARTED , "Game Started.")));
-            writer.writeUTF(gson.toJson(new Message(MessageType.STATUS, "Cards : " + human.getCards())));
+            sendMessage(MessageType.GAME_STARTED , "Game Started.");
+            sendMessage(MessageType.STATUS, "Cards : " + human.getCards());
             this.game = game;
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,23 +121,29 @@ public class ClientHandler implements Runnable {
     }
 
     public void hostHandler() {
-        isHost = true; //todo
+        isHost = true;
         try {
-            writer.writeUTF(gson.toJson(new Message(MessageType.NUMBER_OF_PLAYER,
-                    "Enter number of other players : ")));
+            sendMessage(MessageType.NUMBER_OF_PLAYER,
+                    "Enter number of other players : ");
             Message getNumberOfPlayer = gson.fromJson(reader.readUTF() , Message.class);
             int numberOfPlayer = Integer.parseInt(getNumberOfPlayer.getMessage());
             server.setCapacity(numberOfPlayer + 1);
 
-            writer.writeUTF(gson.toJson(new Message(MessageType.START_GAME , "Start game by writing anything")));
-            reader.readUTF(); //todo invalid input
-            server.startGame();
+            sendMessage(MessageType.START_GAME , "Start game by writing anything");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public synchronized void getStatusHandler() throws IOException {
+    public Human getHuman(){
+        return human;
+    }
+
+    public void sendMessage(MessageType messageType , String message) throws IOException {
+        writer.writeUTF(gson.toJson(new Message(messageType , message)));
+    }
+
+    /*public synchronized void getStatusHandler() throws IOException {
         List<String> gameHistory = game.getGameStatus().getHistory();
         if (!gameHistory.isEmpty()){
             List<String> history = gameHistory.subList(lastIndexOfHistory + 1 , gameHistory.size());
@@ -129,5 +160,5 @@ public class ClientHandler implements Runnable {
                                 "Cards on table :" + game.getGameStatus().getPlayedCards())));
             }
         }
-    }
+    }*/
 }
