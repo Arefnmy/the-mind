@@ -2,7 +2,6 @@ package client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import game.Player;
 import message.Message;
 import message.MessageType;
 
@@ -38,7 +37,7 @@ public class Client implements Runnable {
                         try {
                             while (true) { //end game todo
                                 Thread.sleep(100);
-                                writer.writeUTF(gson.toJson(new Message(authToken, MessageType.GET_STATUS, null)));
+                                writer.writeUTF(gson.toJson(new Message(authToken, MessageType.STATUS, null)));
                             }
                         } catch (InterruptedException | IOException e) {
                             e.printStackTrace();
@@ -51,16 +50,19 @@ public class Client implements Runnable {
                         while (true) {
                             try {
                                 Message message = gson.fromJson(reader.readUTF(), Message.class);
-                                if (message.getMessageType() == MessageType.GET_AUTH_TOKEN){
-                                    authToken = Integer.parseInt(message.getMessage());
-                                    System.out.println("Auth token : " + authToken);
+                                switch (message.getMessageType()){
+                                    case AUTH_TOKEN:
+                                        authToken = Integer.parseInt(message.getMessage());
+                                        System.out.println("Auth token : " + authToken);
+                                        break;
+                                    case STATUS:
+                                        System.out.println("\u001B[33m" + message.getMessage() + "\u001B[0m");
+                                        break;
+                                    case GAME_STARTED:
+                                        ping.start();
+                                    default:
+                                        System.out.println(message.getMessage());
                                 }
-                                else if(message.getMessageType() == MessageType.GAME_STARTED){
-                                    System.out.println(message.getMessage()); // print todo
-                                    ping.start();
-                                }
-                                else
-                                    System.out.println(message.getMessage());
 
                             } catch (IOException e) {
                                 e.printStackTrace();
