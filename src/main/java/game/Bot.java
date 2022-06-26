@@ -18,9 +18,11 @@ public class Bot extends Player implements Runnable {
         int m = cards.getFirst() - game.getGameStatus().getLastPlayedCard();
         if (m > 50) {
             m -= 50;
-            return m * 730;
+            m *= 300;
+            return m + 3000;
         }
-        return m *  570;
+        m *= 400;
+        return m + 1000;
     }
 
     public void interrupt(){

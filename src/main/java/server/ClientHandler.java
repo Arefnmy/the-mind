@@ -10,6 +10,7 @@ import message.MessageType;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class ClientHandler implements Runnable {
     private Game game;
     private Human human;
     private boolean isHost;
+    private int lastIndexOfHistory;
 
     public ClientHandler(Socket socket , int authToken , Server server , boolean isHost) throws IOException {
         gson = new GsonBuilder().create();
@@ -34,6 +36,8 @@ public class ClientHandler implements Runnable {
         this.isHost = isHost;
         reader = new DataInputStream(socket.getInputStream());
         writer = new DataOutputStream(socket.getOutputStream());
+
+        lastIndexOfHistory = -1;
     }
 
     @Override
@@ -57,13 +61,22 @@ public class ClientHandler implements Runnable {
                                 if(message.getAuthToken() == authToken) {
 
                                     if (message.getMessageType() == MessageType.GET_STATUS) {
-                                        List<String> history = game.getGameStatus().getHistory();
-                                        for (String s : history){
-                                            writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , s)));
-                                        }
-                                        if (!history.isEmpty()){
-                                            writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , "Cards : " + human.getCards())));
-                                            history.clear();
+                                        List<String> gameHistory = game.getGameStatus().getHistory();
+                                        if (!gameHistory.isEmpty()){
+                                            List<String> history = gameHistory.subList(lastIndexOfHistory + 1 , gameHistory.size());
+                                            lastIndexOfHistory = gameHistory.size() - 1;
+                                            for (String s : history){
+                                                writer.writeUTF(gson.toJson(new Message(MessageType.GET_STATUS , s)));
+                                            }
+                                            if (!history.isEmpty()){
+                                                writer.writeUTF(gson.toJson(
+                                                        new Message(MessageType.GET_STATUS ,
+                                                                "Cards : " + human.getCards())));
+                                                writer.writeUTF(gson.toJson(
+                                                        new Message(MessageType.GET_STATUS ,
+                                                                "Cards on table :" + game.getGameStatus().getPlayedCards())));
+
+                                            }
                                         }
                                     }
                                     if (message.getMessageType() == MessageType.PLAY_CARD){
@@ -72,8 +85,6 @@ public class ClientHandler implements Runnable {
                                             server.playCardNinja(authToken);
                                         else if (cardStr.equals("NUMBER"))
                                             server.playCard(authToken);
-                                        /*else
-                                            server.playCard(authToken , Integer.parseInt(message.getMessage()));*/
                                     }
                                 }
                                 else

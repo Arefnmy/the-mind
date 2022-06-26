@@ -58,7 +58,7 @@ public class Game {
                 shouldHeartRemove = true;
                 while (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
                     System.out.println("removed from " + p.getName() + " with card " + card);
-                    gameStatus.addHistory("removed from " + p.getName() + " with card " + card);
+                    gameStatus.addHistory("card " + p.getCards().getFirst() + " removed from " + p.getName());
                     gameStatus.addCard(p.getCards().removeFirst() , true);
                 }
             }
@@ -66,7 +66,7 @@ public class Game {
         if (shouldHeartRemove){
             gameStatus.changeHeart(true);
             System.out.println("loose heart!");
-            gameStatus.addHistory("loose heart! \n heart : " + gameStatus.getHeartNumber());
+            gameStatus.addHistory("loose heart! \n hearts : " + gameStatus.getHeartNumber());
         }
 
         boolean allEmpty = true;
@@ -92,6 +92,7 @@ public class Game {
 
     public void playNinja(Player player) {
         gameStatus.addHistory(player.name + " played card ninja");
+        gameStatus.addHistory("Ninjas : " + gameStatus.getNinjaNumber());
         for (Bot b : botList){
             b.interrupt();
         }

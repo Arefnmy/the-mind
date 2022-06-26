@@ -1,8 +1,5 @@
 package game;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,6 +79,10 @@ public class GameStatus {
     public int getLastPlayedCard(){
         if (playedCards.isEmpty()) return 0;
         else return playedCards.getLast();
+    }
+
+    public LinkedList<Integer> getPlayedCards() {
+        return playedCards;
     }
 
     public void addHistory(String message){
