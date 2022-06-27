@@ -19,8 +19,6 @@ public class Game {
         for (int i = 1; i <= 100 ; i++) {
             cards.add(i);
         }
-
-        System.out.println(playerList.size());
     }
 
     public void nextLevel(){
@@ -58,8 +56,9 @@ public class Game {
                 shouldHeartRemove = true;
                 while (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
                     System.out.println("removed from " + p.getName() + " with card " + card);
-                    gameStatus.addHistory("card " + p.getCards().getFirst() + " removed from " + p.getName());
-                    gameStatus.addCard(p.getCards().removeFirst() , true);
+                    int c = p.playCard();
+                    gameStatus.addHistory("card " + c + " removed from " + p.getName());
+                    gameStatus.addCard(c , true);
                 }
             }
         }
@@ -86,7 +85,7 @@ public class Game {
 
     }
 
-    public void playNinja(Player player) {
+    public boolean playNinja(Player player) {
         if (gameStatus.changeNinja(true)) {
             gameStatus.addHistory(player.name + " played card ninja");
             for (Bot b : botList) {
@@ -95,8 +94,11 @@ public class Game {
 
             //gameStatus.changeNinja(true);
             for (Player p : playerList) {
-                if (!p.getCards().isEmpty())
-                    gameStatus.addCard(p.getCards().removeFirst(), true);
+                if (!p.getCards().isEmpty()) {
+                    int card = p.playCard();
+                    gameStatus.addHistory(p.name + " played card " + card);
+                    gameStatus.addCard(card, true);
+                }
             }
 
             boolean allEmpty = true;//function todo
@@ -114,7 +116,9 @@ public class Game {
             for (Bot b : botList) {
                 b.resetSleep();
             }
+            return true;
         }
+        return false;
     }
 
     public GameStatus getGameStatus(){

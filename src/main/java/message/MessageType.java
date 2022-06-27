@@ -6,6 +6,7 @@ public enum MessageType {
     NUMBER_OF_PLAYER,
     START_GAME,
     GAME_STARTED,
+    GAME_FINISHED,
 
     STATUS,
     HISTORY,

@@ -54,54 +54,53 @@ public class ClientHandler implements Runnable {
 
             new Thread(
                     () ->{
-                        while (true){
                             try {
-                                Message message = gson.fromJson(reader.readUTF(), Message.class);
-                                if(message.getAuthToken() == authToken) {
-                                    switch (message.getMessageType()){
-                                        case STATUS:
-                                            //getStatusHandler();
-                                            List<String> gameHistory = game.getGameStatus().getHistory();
-                                            if (!gameHistory.isEmpty()){
-                                                List<String> history = gameHistory.subList(lastIndexOfHistory + 1 , gameHistory.size());
-                                                lastIndexOfHistory = gameHistory.size() - 1;
-                                                for (String s : history){
-                                                    sendMessage(MessageType.HISTORY, s);
+                                while (true) {
+                                    Message message = gson.fromJson(reader.readUTF(), Message.class);
+                                    if (message.getAuthToken() == authToken) {
+                                        switch (message.getMessageType()) {
+                                            case STATUS:
+                                                synchronized (game.getGameStatus().getHistory()) {
+                                                    List<String> gameHistory = game.getGameStatus().getHistory();
+                                                    if (!gameHistory.isEmpty()) {
+                                                        List<String> history = gameHistory.subList(lastIndexOfHistory + 1, gameHistory.size());
+                                                        lastIndexOfHistory = gameHistory.size() - 1;
+                                                        for (String s : history) {
+                                                            sendMessage(MessageType.HISTORY, s);
+                                                        }
+                                                        if (!history.isEmpty()) {
+                                                            sendMessage(MessageType.STATUS, "Cards : " + human.getCards());
+                                                            sendMessage(MessageType.STATUS,
+                                                                    "Cards on table :" + game.getGameStatus().getPlayedCards());
+                                                        }
+                                                    }
                                                 }
-                                                if (!history.isEmpty()){
-                                                    sendMessage(MessageType.STATUS, "Cards : " + human.getCards());
-                                                    sendMessage(MessageType.STATUS,
-                                                            "Cards on table :" + game.getGameStatus().getPlayedCards());
+                                                break;
+                                            case PLAY_CARD:
+                                                String cardStr = message.getMessage();
+                                                if (cardStr.equals("NINJA"))
+                                                    server.playCardNinja(authToken);
+                                                else if (cardStr.equals("NUMBER"))
+                                                    server.playCard(authToken);
+                                                break;
+                                            case START_GAME:
+                                                server.startGame();
+                                                break;
+                                            case REACTION:
+                                                String reaction = human.getName() + ": ";
+                                                for (String s : Server.emojis) {
+                                                    if (message.getMessage().contains(s)) {
+                                                        reaction += s + " "; //todo
+                                                    }
                                                 }
-                                            }
-                                            break;
-                                        case PLAY_CARD:
-                                            String cardStr = message.getMessage();
-                                            if (cardStr.equals("NINJA"))
-                                                server.playCardNinja(authToken);
-                                            else if (cardStr.equals("NUMBER"))
-                                                server.playCard(authToken);
-                                            break;
-                                        case START_GAME:
-                                            server.startGame();
-                                            break;
-                                        case REACTION:
-                                            String reaction = human.getName() + ": ";
-                                            for (String s : Server.emojis){
-                                                if (message.getMessage().contains(s)){
-                                                    reaction += s + " " ;
-                                                }
-                                            }
-                                            server.sendToAll(game , MessageType.REACTION , reaction);
-                                    }
+                                                server.sendToAll(game, MessageType.REACTION, reaction);
+                                        }
+                                    } else
+                                        sendMessage(MessageType.AUTH_TOKEN, "Wrong Auth Token!");
                                 }
-                                else
-                                    sendMessage(MessageType.AUTH_TOKEN, "Wrong Auth Token!");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
-                        }
                     }
             ).start();
 
@@ -113,7 +112,6 @@ public class ClientHandler implements Runnable {
     public void startGame(Game game) {
         try {
             sendMessage(MessageType.GAME_STARTED , "Game Started.");
-            sendMessage(MessageType.STATUS, "Cards : " + human.getCards());
             this.game = game;
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,22 +141,9 @@ public class ClientHandler implements Runnable {
         writer.writeUTF(gson.toJson(new Message(messageType , message)));
     }
 
-    /*public synchronized void getStatusHandler() throws IOException {
-        List<String> gameHistory = game.getGameStatus().getHistory();
-        if (!gameHistory.isEmpty()){
-            List<String> history = gameHistory.subList(lastIndexOfHistory + 1 , gameHistory.size());
-            lastIndexOfHistory = gameHistory.size() - 1;
-            for (String s : history){
-                writer.writeUTF(gson.toJson(new Message(MessageType.HISTORY, s)));
-            }
-            if (!history.isEmpty()){
-                writer.writeUTF(gson.toJson(
-                        new Message(MessageType.STATUS,
-                                "Cards : " + human.getCards())));
-                writer.writeUTF(gson.toJson(
-                        new Message(MessageType.STATUS,
-                                "Cards on table :" + game.getGameStatus().getPlayedCards())));
-            }
-        }
-    }*/
+    public void closeSocket(boolean isWinner) throws IOException {
+        sendMessage(MessageType.GAME_FINISHED ,
+                isWinner ? "You wined the game!" : "Oops! You lost the game.");
+        socket.close();
+    }
 }

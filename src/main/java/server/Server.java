@@ -74,7 +74,7 @@ public class Server {
         clientHandlerList.removeAll(clientHandlers);
 
         if (!clientHandlerList.isEmpty())
-            clientHandlerList.get(0).hostHandler(); //handel before start game todo
+            clientHandlerList.get(0).hostHandler();
     }
 
     public void addToLobby(Human player){
@@ -93,12 +93,14 @@ public class Server {
         }
     }
 
-    public void playCardNinja(int token){
+    public void playCardNinja(int token) throws IOException {
         for (Game g : gamaList){
             for (ClientHandler c : gameMap.get(g)) {
                 Human h = c.getHuman();
                 if (h.getToken() == token)
-                    g.playNinja(h);
+                    if (!g.playNinja(h)){
+                        c.sendMessage(MessageType.STATUS , "There is no Ninja card!");
+                    }
             }
         }
     }
@@ -106,6 +108,12 @@ public class Server {
     public void sendToAll(Game game ,MessageType messageType, String message) throws IOException {
         for (ClientHandler c : gameMap.get(game)){
             c.sendMessage(messageType , message);
+        }
+    }
+
+    public void setEndGame(Game game , boolean win) throws IOException {
+        for (ClientHandler c : gameMap.get(game)){
+            c.closeSocket(win);
         }
     }
 }

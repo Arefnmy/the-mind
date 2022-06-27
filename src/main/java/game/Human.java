@@ -1,7 +1,7 @@
 package game;
 
 public class Human extends Player{
-    private int token;
+    private final int token;
 
     public Human(int token , String name) {
         super(name);

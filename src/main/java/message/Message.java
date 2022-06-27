@@ -2,8 +2,8 @@ package message;
 
 public class Message {
     private int authToken;
-    private MessageType messageType;
-    private String message;
+    private final MessageType messageType;
+    private final String message;
 
     //client side
     public Message(int authToken, MessageType messageType, String message) {
