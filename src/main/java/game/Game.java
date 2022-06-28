@@ -54,7 +54,6 @@ public class Game {
             if (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
                 shouldHeartRemove = true;
                 while (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
-                    System.out.println("removed from " + p.getName() + " with card " + card);
                     int c = p.playCard();
                     gameStatus.addHistory("card " + c + " removed from " + p.getName());
                     gameStatus.addCard(c , true);
@@ -72,10 +71,8 @@ public class Game {
                 break;
             }
         }
-        if(allEmpty) {
+        if(allEmpty)
             nextLevel();
-            System.out.println(" level " + gameStatus.getLevel());
-        }
 
         for (Bot b : botList){
             b.resetSleep();
@@ -98,17 +95,15 @@ public class Game {
                 }
             }
 
-            boolean allEmpty = true;//function todo
+            boolean allEmpty = true;
             for (Player p : playerList) {
                 if (!p.getCards().isEmpty()) {
                     allEmpty = false;
                     break;
                 }
             }
-            if (allEmpty) {
+            if (allEmpty)
                 nextLevel();
-                System.out.println(" level " + gameStatus.getLevel());
-            }
 
             for (Bot b : botList) {
                 b.resetSleep();

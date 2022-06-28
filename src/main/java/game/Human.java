@@ -1,14 +1,14 @@
 package game;
 
 public class Human extends Player{
-    private final int token;
+    private final String token;
 
-    public Human(int token , String name) {
+    public Human(String token , String name) {
         super(name);
         this.token = token;
     }
 
-    public int getToken() {
+    public String getToken() {
         return token;
     }
 }

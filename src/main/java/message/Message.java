@@ -1,12 +1,12 @@
 package message;
 
 public class Message {
-    private int authToken;
+    private String authToken;
     private final MessageType messageType;
     private final String message;
 
     //client side
-    public Message(int authToken, MessageType messageType, String message) {
+    public Message(String authToken, MessageType messageType, String message) {
         this.authToken = authToken;
         this.messageType = messageType;
         this.message = message;
@@ -18,7 +18,7 @@ public class Message {
         this.message = message;
     }
 
-    public int getAuthToken() {
+    public String getAuthToken() {
         return authToken;
     }
 

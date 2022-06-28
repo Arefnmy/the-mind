@@ -27,14 +27,6 @@ public class GameStatus {
             playedCards.add(card);
     }
 
-    public int getHeartNumber() {
-        return heartNumber;
-    }
-
-    public int getNinjaNumber() {
-        return ninjaNumber;
-    }
-
     public int getLevel() {
         return level;
     }

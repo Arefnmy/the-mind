@@ -9,13 +9,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Client implements Runnable {
     private final Gson gson;
 
-    private int authToken; //todo string
+    private String authToken;
     private final Socket socket;
     private final DataInputStream reader;
     private final DataOutputStream writer;
@@ -36,7 +35,7 @@ public class Client implements Runnable {
         Thread ping = new Thread(
                     () -> {
                         try {
-                            while (true) { //end game todo
+                            while (true) {
                                 Thread.sleep(100);
                                 writer.writeUTF(gson.toJson(new Message(authToken, MessageType.STATUS, null)));
                             }
@@ -47,18 +46,22 @@ public class Client implements Runnable {
             );
 
             new Thread(
-                    () ->{
+                    () -> {
                         while (true) {
                             try {
                                 Message message = gson.fromJson(reader.readUTF(), Message.class);
                                 switch (message.getMessageType()){
                                     case GET_AUTH_TOKEN:
-                                        authToken = Integer.parseInt(message.getMessage());
+                                        authToken = message.getMessage();
                                         System.out.println("Auth token : " + authToken);
                                         break;
                                     case STATUS:
                                         System.out.println("\u001B[33m" + message.getMessage() + "\u001B[0m");
                                         break;
+                                    case GAME_FINISHED:
+                                        //socket.close();
+                                        System.out.println(message.getMessage());
+                                        return;
                                     case GAME_STARTED:
                                         ping.start();
                                     default:
@@ -76,14 +79,14 @@ public class Client implements Runnable {
                     () ->{
                         while (true) {
                             try {
-                                int authToken = scanner.nextInt();
+                                String authToken = scanner.next();
                                 String messageTypeValue = scanner.next();
                                 MessageType messageType = MessageType.valueOf(messageTypeValue);
                                 String text = scanner.next();
                                 Message message = new Message(authToken , messageType , text);
                                 writer.writeUTF(gson.toJson(message));
 
-                            } catch (IOException | IllegalArgumentException | InputMismatchException ignored) {
+                            } catch (IOException /*| IllegalArgumentException*/ ignored) {
                                 //ignore
                             }
                         }

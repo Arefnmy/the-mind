@@ -19,14 +19,14 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final DataInputStream reader;
     private final DataOutputStream writer;
-    private final int authToken;
+    private final String authToken;
     private final Server server;
     private Game game;
     private Human human;
     private boolean isHost;
     private int lastIndexOfHistory;
 
-    public ClientHandler(Socket socket , int authToken , Server server , boolean isHost) throws IOException {
+    public ClientHandler(Socket socket , String authToken , Server server , boolean isHost) throws IOException {
         gson = new GsonBuilder().create();
 
         this.socket = socket;
@@ -44,7 +44,7 @@ public class ClientHandler implements Runnable {
         try {
             sendMessage(MessageType.GET_AUTH_TOKEN, String.valueOf(authToken));
             sendMessage(MessageType.NAME, "Enter your name : ");
-            Message getName = gson.fromJson(reader.readUTF() , Message.class); //todo correct messageType
+            Message getName = gson.fromJson(reader.readUTF() , Message.class);
             String name = getName.getMessage();
             human = new Human(authToken , name);
             server.addToLobby(human);
@@ -54,7 +54,7 @@ public class ClientHandler implements Runnable {
 
             while (!socket.isClosed()) {
                 Message message = gson.fromJson(reader.readUTF(), Message.class);
-                if (message.getAuthToken() == authToken) {
+                if (message.getAuthToken().equals(authToken)) {
                     switch (message.getMessageType()) {
                         case NUMBER_OF_PLAYER:
                             int numberOfPlayer = Integer.parseInt(message.getMessage());
@@ -66,7 +66,8 @@ public class ClientHandler implements Runnable {
                         case STATUS:
                             synchronized (game.getGameStatus().getHistory()) {
                                 if (game.getGameStatus().getWon() != null){
-                                    closeSocket(game.getGameStatus().getWon());
+                                    server.setEndGame(game , game.getGameStatus().getWon());
+                                    //return;//todo
                                 }
                                 List<String> gameHistory = game.getGameStatus().getHistory();
                                 if (!gameHistory.isEmpty()) {
@@ -94,7 +95,7 @@ public class ClientHandler implements Runnable {
                             String reaction = human.getName() + ": ";
                             for (String s : Server.emojis) {
                                 if (message.getMessage().contains(s)) {
-                                    reaction += s + " "; //todo
+                                    reaction += s + " ";
                                 }
                             }
                             server.sendToAll(game, MessageType.REACTION, reaction);
@@ -138,6 +139,6 @@ public class ClientHandler implements Runnable {
     public void closeSocket(boolean isWinner) throws IOException {
         sendMessage(MessageType.GAME_FINISHED ,
                 isWinner ? "You wined the game!" : "Oops! You lost the game.");
-        socket.close();
+        //socket.close();
     }
 }

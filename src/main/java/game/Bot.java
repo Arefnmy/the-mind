@@ -41,8 +41,8 @@ public class Bot extends Player implements Runnable {
                 int card = playCard();
                 game.play(this , card);
             }
-            catch (InterruptedException e) {
-                //e.printStackTrace();
+            catch (InterruptedException ignored) {
+
             }
         }
     }

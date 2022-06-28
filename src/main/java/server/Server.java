@@ -33,7 +33,7 @@ public class Server {
         while (!serverSocket.isClosed()){
             Socket socket = serverSocket.accept();
             System.out.println("Client Accepted.");
-            ClientHandler clientHandler = new ClientHandler(socket , Math.abs(random.nextInt()) ,
+            ClientHandler clientHandler = new ClientHandler(socket , String.valueOf(Math.abs(random.nextInt())) ,
                     this , lobby.isEmpty());
             clientHandlerList.add(clientHandler);
 
@@ -81,11 +81,11 @@ public class Server {
         lobby.add(player);
     }
 
-    public void playCard(int token){
+    public void playCard(String token){
         for (Game g : gamaList){
             for (ClientHandler c : gameMap.get(g)){
                 Human h = c.getHuman();
-                if (h.getToken() == token){
+                if (h.getToken().equals(token)){
                     if (!h.getCards().isEmpty()) {
                         int playCard = h.playCard();
                         g.play(h, playCard);
@@ -95,11 +95,11 @@ public class Server {
         }
     }
 
-    public void playCardNinja(int token) throws IOException {
+    public void playCardNinja(String token) throws IOException {
         for (Game g : gamaList){
             for (ClientHandler c : gameMap.get(g)) {
                 Human h = c.getHuman();
-                if (h.getToken() == token)
+                if (h.getToken().equals(token))
                     if (!g.playNinja(h)){
                         c.sendMessage(MessageType.STATUS , "There is no Ninja card!");
                     }
