@@ -15,7 +15,7 @@ public class Bot extends Player implements Runnable {
     }
 
     public int getSleepTime(){
-        int m = cards.getFirst() - game.getGameStatus().getLastPlayedCard();
+        int m = Math.abs(cards.getFirst() - game.getGameStatus().getLastPlayedCard());
         if (m > 50) {
             m -= 50;
             m *= 300;

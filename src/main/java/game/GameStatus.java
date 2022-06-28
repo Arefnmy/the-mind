@@ -10,6 +10,7 @@ public class GameStatus {
     private int level;
     private final LinkedList<Integer> playedCards;
     private final List<String> history;
+    private Boolean isWon;
 
     public GameStatus(int playerNumber) {
         history = new ArrayList<>();
@@ -43,6 +44,9 @@ public class GameStatus {
             heartNumber--;
         else
             heartNumber ++;
+
+        if (heartNumber == 0)
+            isWon = false;
         addHistory(" Hearts : " + heartNumber);
     }
 
@@ -67,6 +71,8 @@ public class GameStatus {
 
         if (level % 3 == 2 && level != 11) changeHeart(false);
 
+        if (level > 12)
+            isWon = true;
     }
 
     public int getLastPlayedCard(){
@@ -86,5 +92,9 @@ public class GameStatus {
 
     public List<String> getHistory() {
         return history;
+    }
+
+    public Boolean getWon() {
+        return isWon;
     }
 }

@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Client implements Runnable {
@@ -51,7 +52,7 @@ public class Client implements Runnable {
                             try {
                                 Message message = gson.fromJson(reader.readUTF(), Message.class);
                                 switch (message.getMessageType()){
-                                    case AUTH_TOKEN:
+                                    case GET_AUTH_TOKEN:
                                         authToken = Integer.parseInt(message.getMessage());
                                         System.out.println("Auth token : " + authToken);
                                         break;
@@ -75,15 +76,14 @@ public class Client implements Runnable {
                     () ->{
                         while (true) {
                             try {
-                                //int authToken = scanner.nextInt();
+                                int authToken = scanner.nextInt();
                                 String messageTypeValue = scanner.next();
-                                MessageType messageType = MessageType.valueOf(messageTypeValue); //todo invalid
+                                MessageType messageType = MessageType.valueOf(messageTypeValue);
                                 String text = scanner.next();
                                 Message message = new Message(authToken , messageType , text);
-                                //writer.writeUTF(gson.toJson(new Message(authToken, MessageType.PLAY_CARD, scanner.nextLine())));
                                 writer.writeUTF(gson.toJson(message));
 
-                            } catch (IOException | IllegalArgumentException ignored) {
+                            } catch (IOException | IllegalArgumentException | InputMismatchException ignored) {
                                 //ignore
                             }
                         }

@@ -42,7 +42,6 @@ public class Game {
     }
 
     public void play(Player player , int card){
-        System.out.println(player.name + " played card " + card);
         gameStatus.addHistory(player.name + " played card " + card);
         gameStatus.addCard(card , false);
 
@@ -64,7 +63,6 @@ public class Game {
         }
         if (shouldHeartRemove){
             gameStatus.changeHeart(true);
-            //todo
         }
 
         boolean allEmpty = true;
@@ -87,12 +85,11 @@ public class Game {
 
     public boolean playNinja(Player player) {
         if (gameStatus.changeNinja(true)) {
-            gameStatus.addHistory(player.name + " played card ninja");
+            gameStatus.addHistory(player.name + " played ninja");
             for (Bot b : botList) {
                 b.interrupt();
             }
 
-            //gameStatus.changeNinja(true);
             for (Player p : playerList) {
                 if (!p.getCards().isEmpty()) {
                     int card = p.playCard();

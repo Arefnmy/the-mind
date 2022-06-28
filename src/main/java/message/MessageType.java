@@ -1,7 +1,8 @@
 package message;
 
 public enum MessageType {
-    AUTH_TOKEN,
+    GET_AUTH_TOKEN,
+    WRONG_AUTH_TOKEN,
     NAME,
     NUMBER_OF_PLAYER,
     START_GAME,

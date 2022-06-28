@@ -86,8 +86,10 @@ public class Server {
             for (ClientHandler c : gameMap.get(g)){
                 Human h = c.getHuman();
                 if (h.getToken() == token){
-                    int playCard = h.playCard();
-                    g.play(h , playCard);
+                    if (!h.getCards().isEmpty()) {
+                        int playCard = h.playCard();
+                        g.play(h, playCard);
+                    }
                 }
             }
         }
