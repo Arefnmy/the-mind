@@ -1,26 +1,20 @@
 package server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.FileWriter;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Properties;
 
 public class ServerMain {
-    private int port;
-
-    public ServerMain(int port) {
-        this.port = port;
-    }
+    private final static String path = "src/main/resources/server.properties";
 
     public static void main(String[] args) throws IOException {
-        /*Server server = new Server(8000);
-        server.accept();*/
+        Properties properties = new Properties();
+        properties.load(new FileReader(path));
+        int port = Integer.parseInt(properties.getProperty("port"));
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        ServerMain serverMain = new ServerMain(8000);
-        String json = gson.toJson(serverMain);
-        FileWriter fileWriter = new FileWriter("src/main/resources/server.json");
-        fileWriter.write(json);
+
+        Server server = new Server(port);
+        server.accept();
+
     }
 }
