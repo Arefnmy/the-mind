@@ -19,7 +19,7 @@ public class Bot extends Player implements Runnable {
         if (m > 50) {
             m -= 50;
             m *= 300;
-            return m + 4000;
+            return m + 4300;
         }
         m *= 400;
         return m + 1500;

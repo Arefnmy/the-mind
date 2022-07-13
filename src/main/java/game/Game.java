@@ -1,5 +1,6 @@
 package game;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class Game {
     }
 
     public void play(Player player , int card){
-        gameStatus.addHistory(player.name + " played card " + card);
+        gameStatus.addHistory(player.name + " played card " + card + ".");
         gameStatus.addCard(card , false);
 
         for (Bot b : botList){
@@ -50,8 +51,11 @@ public class Game {
         }
 
         boolean shouldHeartRemove = false;
+        List<Player> players = new ArrayList<>(); //to show number of cards
+        players.add(player);
         for (Player p : playerList){
             if (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
+                players.add(p);
                 shouldHeartRemove = true;
                 while (!p.getCards().isEmpty() && p.getCards().getFirst() < card){
                     int c = p.playCard();
@@ -60,6 +64,11 @@ public class Game {
                 }
             }
         }
+        /*String cardsNumber = "Cards number : \n";
+        for (Player p : players){
+            cardsNumber += p.getName() + " : " + p.getCards().size() + ",";
+        }
+        gameStatus.addHistory(cardsNumber);*/
         if (shouldHeartRemove){
             gameStatus.changeHeart(true);
         }

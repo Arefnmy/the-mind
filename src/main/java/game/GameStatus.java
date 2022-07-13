@@ -59,9 +59,9 @@ public class GameStatus {
         level ++;
         addHistory(" Level : " + level);
 
-        if (level % 3 == 0 && level != 12) changeNinja(false);
+        if (level % 3 == 0 && level < 12) changeHeart(false);
 
-        if (level % 3 == 2 && level != 11) changeHeart(false);
+        if (level % 3 == 2 && level < 11) changeNinja(false);
 
         if (level > 12)
             isWon = true;

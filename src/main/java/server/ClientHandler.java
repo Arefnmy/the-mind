@@ -59,15 +59,15 @@ public class ClientHandler implements Runnable {
                         case NUMBER_OF_PLAYER:
                             int numberOfPlayer = Integer.parseInt(message.getMessage());
                             server.setCapacity(numberOfPlayer + 1);
-                            sendMessage(MessageType.START_GAME , "Start game by writing anything");
-                            Message startGame = gson.fromJson(reader.readUTF() , Message.class);
+                            sendMessage(MessageType.START_GAME , "Start game by writing anything...");
+                            break;
+                        case START_GAME:
                             server.startGame();
                             break;
                         case STATUS:
                             synchronized (game.getGameStatus().getHistory()) {
                                 if (game.getGameStatus().getWon() != null){
                                     server.setEndGame(game , game.getGameStatus().getWon());
-                                    //return;//todo
                                 }
                                 List<String> gameHistory = game.getGameStatus().getHistory();
                                 if (!gameHistory.isEmpty()) {
@@ -138,7 +138,7 @@ public class ClientHandler implements Runnable {
 
     public void closeSocket(boolean isWinner) throws IOException {
         sendMessage(MessageType.GAME_FINISHED ,
-                isWinner ? "You wined the game!" : "Oops! You lost the game.");
+                isWinner ? "You won the game!" : "Oops! You lost the game.");
         //socket.close();
     }
 }

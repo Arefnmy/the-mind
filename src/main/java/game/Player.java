@@ -17,7 +17,6 @@ public abstract class Player {
     public void newDeck(List<Integer> deck){
         cards.addAll(deck);
         Collections.sort(cards);
-        System.out.println(" player " + this.name + " cards " + cards);
     }
 
     public int playCard(){
